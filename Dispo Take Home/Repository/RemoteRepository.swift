@@ -6,3 +6,47 @@
 //
 
 import Foundation
+
+struct RemoteRepository {
+    private var client = GifAPIClient()
+    
+    func getTrendingGifs(success: @escaping (APIListResponse) -> (), failure: @escaping (String) -> ()) {
+        client.request(
+            endpointType: .trending,
+            params: ["rating": "pg"],
+            success:  {(response: APIListResponse) in
+                success(response)
+            },
+            failure: { (error) in
+                failure(error)
+            }
+        )
+    }
+    
+    func getSearchGifs(searchString: String, success: @escaping (APIListResponse) -> (), failure: @escaping (String) -> ()) {
+        client.request(
+            endpointType: .search,
+            params: ["q": searchString],
+            success: {(searchResults: APIListResponse) in
+                success(searchResults)
+            },
+            failure: {error in
+                failure(error)
+            }
+        )
+    }
+    
+    func getGif(gifId: String, success: @escaping (GifObject) -> (), failure: @escaping (String) -> ()) {
+        client.request(
+            endpointType: .gifId(gifId),
+//            params: ["gif_id": gifId],
+            success: {(gifInfo: GifObject) in
+                success(gifInfo)
+                print(gifInfo, "repo<<||??")
+            },
+            failure: {error in
+                failure(error)
+            }
+        )
+    }
+}

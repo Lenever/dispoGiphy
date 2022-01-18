@@ -5,8 +5,8 @@ struct SearchResult {
     var gifUrl: URL
     var title: String
     
-    enum CodingKeys: String, CodingKey {
-        case id, title
-        case gifUrl = "url"
-    }
+//    enum CodingKeys: String, CodingKey {
+//        case id, title
+//        case gifUrl = "url"
+//    }
 }

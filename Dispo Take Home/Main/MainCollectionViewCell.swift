@@ -5,10 +5,18 @@
 //  Created by Ikechukwu Onuorah on 15/01/2022.
 //
 
-import UIKit
+import Kingfisher
 import SnapKit
+import UIKit
 
 class MainCollectionViewCell: UICollectionViewCell {
+    var gifDetail: GifObject? {
+        didSet {
+            guard let detail = gifDetail else { return }
+            gifThumbNail.kf.setImage(with: detail.images.fixed_height.url)
+            gifTitle.text = detail.title
+        }
+    }
     
     var viewContainer = UIView()
     var gifThumbNail = UIImageView()
@@ -40,12 +48,12 @@ class MainCollectionViewCell: UICollectionViewCell {
     
     func setupGifTitle() {
         viewContainer.addSubview(gifTitle)
-//        movieTitle.text = movieCell?.title
         gifTitle.text = "Initially working"
         gifTitle.numberOfLines = 0
         gifTitle.lineBreakMode = .byWordWrapping
         gifTitle.snp.makeConstraints { (make) in
             make.leading.equalTo(gifThumbNail.snp.trailing).offset(25)
+            make.trailing.equalTo(viewContainer).offset(-25)
             make.centerY.equalTo(gifThumbNail)
         }
     }
@@ -60,21 +68,7 @@ class MainCollectionViewCell: UICollectionViewCell {
         setupGifThumbNail()
         setupGifTitle()
     }
-    
-//    var movieCell: MovieDataModel? {
-//        didSet {
-//            guard let movieCell = movieCell else { return }
-//            movieThumbNail.image = UIImage(named: movieCell.image ?? "")
-//            movieTitle.text = movieCell.title
-//            movieGenre.text = movieCell.genre
-//            movieRatings.text = "Rated \(movieCell.rating ?? String())"
-//            movieTicketPrice.text = "₦ \(movieCell.ticketPrice ?? String())"
-//            movieCountry.text = movieCell.country
-//            movieReleaseDate.text = movieCell.releaseDate
-//            movieDescription.text = movieCell.movieDescription
-//        }
-//    }
-    
+        
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

@@ -1,7 +1,21 @@
 import UIKit
 
 class DetailViewController: UIViewController {
-//    var userDetail: UserDetails?
+    var viewModel = DetailViewModel()
+    var gifInfo: GifObject? {
+        didSet {
+            guard let detail = gifInfo else { return }
+            imageView.kf.setImage(with: detail.images.fixed_height.url)
+            titleLabel.text = detail.title
+            sourceLabel.text = detail.source_tld
+            ratingLabel.text = detail.rating
+        }
+    }
+    var gifId: String {
+        didSet {
+            loadGif(gifId: gifId)
+        }
+    }
     
     var imageView = UIImageView()
     var titleLabel = UILabel()
@@ -13,9 +27,11 @@ class DetailViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setUp()
         layoutSubviews()
+        loadGif(gifId: gifId)
     }
     
-    init(searchResult: SearchResult) {
+    init(gifId: String) {
+        self.gifId = gifId
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -86,7 +102,21 @@ class DetailViewController: UIViewController {
             make.trailing.equalTo(view).offset(-25)
         }
     }
-
+    
+    func loadGif(gifId: String) {
+        viewModel.fetchGif(
+          gifId: gifId,
+          success: { gifInfo in
+              self.gifInfo = gifInfo
+              DispatchQueue.main.async {
+                  print(gifInfo, "<<||>>")
+              }
+          },
+          failure: { error in
+              print(error)
+          }
+        )
+    }
     
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
