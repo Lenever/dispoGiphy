@@ -36,13 +36,11 @@ struct RemoteRepository {
         )
     }
     
-    func getGif(gifId: String, success: @escaping (GifObject) -> (), failure: @escaping (String) -> ()) {
+    func getGif(gifId: String, success: @escaping (APIDetailResponse) -> (), failure: @escaping (String) -> ()) {
         client.request(
             endpointType: .gifId(gifId),
-//            params: ["gif_id": gifId],
-            success: {(gifInfo: GifObject) in
+            success: {(gifInfo: APIDetailResponse) in
                 success(gifInfo)
-                print(gifInfo, "repo<<||??")
             },
             failure: {error in
                 failure(error)

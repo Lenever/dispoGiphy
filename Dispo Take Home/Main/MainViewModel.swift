@@ -8,7 +8,7 @@
 import Foundation
 
 class MainViewModel {
-    var gifRepository: RemoteRepository?
+    private var gifRepository: RemoteRepository?
     
     init() {
         self.gifRepository = RemoteRepository()

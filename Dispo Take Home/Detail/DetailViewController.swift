@@ -1,42 +1,42 @@
 import UIKit
 
 class DetailViewController: UIViewController {
-    var viewModel = DetailViewModel()
-    var gifInfo: GifObject? {
+    private var viewModel = DetailViewModel()
+    var gifId: String? {
         didSet {
-            guard let detail = gifInfo else { return }
-            imageView.kf.setImage(with: detail.images.fixed_height.url)
-            titleLabel.text = detail.title
-            sourceLabel.text = detail.source_tld
-            ratingLabel.text = detail.rating
+            loadGif(gifId: gifId ?? String())
         }
     }
-    var gifId: String {
+    private var gifInfo: GifObject? {
         didSet {
-            loadGif(gifId: gifId)
+            guard let detail = gifInfo else { return }
+            DispatchQueue.main.async {
+                self.activityIndicator.startAnimating()
+                self.titleLabel.text = detail.title
+                self.sourceLabel.text = detail.source_tld
+                self.ratingLabel.text = detail.rating
+                self.imageView.kf.setImage(with: detail.images.fixed_height.url, completionHandler:  { _ in
+                    self.activityIndicator.stopAnimating()
+                })
+
+            }
         }
     }
     
-    var imageView = UIImageView()
-    var titleLabel = UILabel()
-    var sourceLabel = UILabel()
-    var ratingLabel = UILabel()
+    private var imageView = UIImageView()
+    private var titleLabel = UILabel()
+    private var sourceLabel = UILabel()
+    private var ratingLabel = UILabel()
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView()
+        return view
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        setUp()
         layoutSubviews()
-        loadGif(gifId: gifId)
-    }
-    
-    init(gifId: String) {
-        self.gifId = gifId
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    func setUp() {
-        
+        loadGif(gifId: gifId ?? String())
     }
     
     func layoutSubviews() {
@@ -45,19 +45,20 @@ class DetailViewController: UIViewController {
         setuptitleLabel()
         setupSourceLabel()
         setupRatingLabel()
+        setupActivityIndicator()
     }
     
     func setupNavigationBar() {
         navigationController?.navigationBar.isTranslucent = true
-        navigationItem.title = "Gif Info Details"
+        navigationItem.title = Constants.detailTitle
     }
     
     func setupImageView() {
+        imageView.addSubview(activityIndicator)
         view.addSubview(imageView)
-        imageView.backgroundColor = .systemPink
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleToFill
         imageView.snp.makeConstraints { (make) in
-            make.top.equalTo(view).offset(100)
+            make.top.equalTo(view.safeAreaLayoutGuide)
             make.leading.equalTo(view).offset(25)
             make.trailing.equalTo(view).offset(-25)
             make.height.equalTo(view).multipliedBy(0.3)
@@ -66,7 +67,6 @@ class DetailViewController: UIViewController {
     
     func setuptitleLabel() {
         view.addSubview(titleLabel)
-        titleLabel.text = "Title of things and things and things and things and things"
         titleLabel.numberOfLines = 0
         titleLabel.lineBreakMode = .byWordWrapping
         titleLabel.textAlignment = .center
@@ -79,7 +79,6 @@ class DetailViewController: UIViewController {
     
     func setupSourceLabel() {
         view.addSubview(sourceLabel)
-        sourceLabel.text = "Source"
         sourceLabel.numberOfLines = 0
         sourceLabel.lineBreakMode = .byWordWrapping
         sourceLabel.textAlignment = .center
@@ -92,7 +91,6 @@ class DetailViewController: UIViewController {
     
     func setupRatingLabel() {
         view.addSubview(ratingLabel)
-        ratingLabel.text = "Rating"
         ratingLabel.numberOfLines = 0
         ratingLabel.lineBreakMode = .byWordWrapping
         ratingLabel.textAlignment = .center
@@ -103,22 +101,22 @@ class DetailViewController: UIViewController {
         }
     }
     
-    func loadGif(gifId: String) {
-        viewModel.fetchGif(
-          gifId: gifId,
-          success: { gifInfo in
-              self.gifInfo = gifInfo
-              DispatchQueue.main.async {
-                  print(gifInfo, "<<||>>")
-              }
-          },
-          failure: { error in
-              print(error)
-          }
-        )
+    func setupActivityIndicator() {
+        activityIndicator.snp.makeConstraints { (make) in
+            make.centerX.equalTo(imageView)
+            make.centerY.equalTo(imageView)
+        }
     }
     
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
+    func loadGif(gifId: String) {
+        viewModel.fetchGif(
+            gifId: gifId,
+            success: { gifInfo in
+                self.gifInfo = gifInfo.data
+            },
+            failure: { error in
+                print(error)
+            }
+        )
+    }    
 }
